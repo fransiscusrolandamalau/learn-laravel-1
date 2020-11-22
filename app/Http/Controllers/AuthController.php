@@ -5,20 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
+use Auth;
 use Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login']]);
-    }
-
     /**
      * Get a JWT via given credentials.
      *
@@ -33,8 +24,10 @@ class AuthController extends Controller
                 'error' => 'Unauthorized'
             ], 401);
         }
-
-        return $this->respondWithToken($token);
+        return response()->json([
+                'access_token' => $token,
+                'status' => 'success'
+            ], 200)->header('Authorization', $token);
     }
 
     public function register(RegisterRequest $request)
@@ -54,9 +47,14 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me()
+    public function user()
     {
-        return response()->json(auth()->user());
+        $user = User::find(auth()->user()->id);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $user
+        ]);
     }
 
     /**
@@ -66,11 +64,12 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth()->logout();
+        $this->guard()->logout();
 
         return response()->json([
+            'status' => 'success',
             'message' => 'Successfully logged out'
-        ]);
+        ], 200);
     }
 
     /**
@@ -80,21 +79,19 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        if ($token = $this->guard()->refresh()) {
+            return response()->json([
+                'status' => 'success'
+            ], 200)->header('Authorization', $token);
+        }
+
+        return response()->json([
+            'error' => 'refresh_token_error'
+        ], 400);
     }
 
-    /**
-     * Get the token array structure.
-     *
-     * @param [string] $token
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function respondWithToken($token)
+    private function guard()
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+        return Auth::guard();
     }
 }
