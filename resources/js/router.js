@@ -1,5 +1,6 @@
 import VueRouter from 'vue-router';
 
+import welcome from './pages/welcome';
 import Home from './pages/Home';
 import About from './pages/About';
 import Register from './pages/Register';
@@ -10,6 +11,14 @@ import AdminDashboard from './pages/admin/Dashboard';
 const routes = [
     {
         path: '/',
+        name: 'welcome',
+        component: welcome,
+        meta: {
+            auth: undefined
+        }
+    },
+    {
+        path: '/home',
         name: 'home',
         component: Home,
         meta: {

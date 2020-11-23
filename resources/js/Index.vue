@@ -1,7 +1,8 @@
 <template>
     <div id="main">
+        <loading ref="loading" />
         <header id="header">
-            <Menu></Menu>
+            <Navbar></Navbar>
         </header>
         <div id="content">
             <router-view></router-view>
@@ -9,15 +10,20 @@
     </div>
 </template>
 <script>
-  import Menu from './components/Menu.vue'
+    import Loading from './components/Loading'
+  import Navbar from './components/Navbar.vue'
   export default {
     data() {
       return {
         //
       }
     },
+    mounted () {
+        this.$loading = this.$refs.loading
+    },
     components: {
-      Menu
+      Navbar,
+      Loading
     }
   }
 </script>

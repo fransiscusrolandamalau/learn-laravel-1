@@ -22,6 +22,8 @@ Vue.use(VueAxios, axios)
 axios.defaults.baseURL = `${process.env.MIX_APP_URL}/api/v1`
 Vue.use(VueAuth, auth)
 
+Vue.config.productionTip = false
+
 // Load Index
 Vue.component('index', Index)
 const app = new Vue({
